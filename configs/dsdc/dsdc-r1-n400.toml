@@ -1,0 +1,125 @@
+[meta]
+name = "dsdc-r1-n400"                  # name of the configuration, directory name, and used by WandB
+version = "0.0.1"                      # internal versioning
+use_wandb = true                       # if WandB should be used
+
+[meta.wandb]                           # options passed to WandB init
+pass_name = true                       # if meta.name should be passed to init
+project = "delay-dc"                   # WandB project to which results will be sent
+entity = "inferno-snn"                 # WandB username or team name
+group = "paper-runs"                   # WandB group for this run
+notes = ""                             # WandB description for the run
+tags = []                              # WandB tags for the run
+
+[simulation]
+nsqrt_neurons = 20                     # square root of the number of neurons (each side of a square matrix)
+step_time = 1.0                        # length of each simulation step (in Hz)
+num_steps = 250                        # number of simulation steps per batch
+encoder = "exp-int"                    # encoder used for spikes, either "poisson-int", "exp-int", or "exprefrac-int"
+spike_freq = 127.5                     # maximum spike frequency (in Hz) for input spikes (from feature-scaled input)
+num_epochs = 60                        # number of simulation epochs
+train_batch_size = 50                  # batch size for training
+infer_batch_size = 100                 # batch size for validation and testing
+
+[dataset]
+ntrain = 50000                         # number of training samples, from MNIST training with 60k
+nvalid = 10000                         # number of validation samples, from MNIST training with 60k
+ntest = 10000                          # number of testing samples, from MNIST testing with 10k
+
+[runtime]
+device = "cuda"                        # PyTorch device string specifying the device used for computations
+float_dtype = "float32"                # PyTorch floating point data type, can be one of: "float32", "float64", "float16", "bfloat16"
+log_interval = 200                     # samples per wandb log
+checkpoint_interval = 2000             # checkpoints which will be overwritten (for recovery)
+inplace = true                         # use in-place operations for storing delayed synapse values and training
+
+[reproducibility]
+weight_init_seed = 31415926            # seed for determining initial connection weights
+delay_init_seed = 62831853             # seed for determining initial connection delays
+train_seed = 16180339                  # seed for sampling and ordering the training set
+valid_seed = 14142135                  # seed for sampling and ordering the validation set
+test_seed = 24142135                   # seed for sampling and ordering the testing set
+
+[connections.feedforward.weight]       # weights for dense connection for inference
+init_dist = "uniform"                  # distribution of initial weights, can be one of: "uniform", "normal"
+init_min = 0.0                         # minimum value of initial weights
+init_max = 0.3                         # maximum value of initial weights
+norm_schedule = "batch"                # how often weights are normalized, can be one of: "step", "batch", "never"
+norm_vector = "input"                  # if the vector for each input or output should be normalized, can be one of: "input", "output"
+norm_order = 1.0                       # order of the target p-norm
+norm_scale = 78.4                      # target norm for each vector of weights
+norm_autoscale = false                 # if norm scale given is the per-element average
+bind_lower_mode = "soft"               # bounding mode for minimums, can be one of: "none", "soft", "scaled-soft", "hard", "clamp"
+bind_lower_lim = 0.0                   # bounding minimum, ignored when lower_bound_mode = "none"
+bind_lower_pow = 1.0                   # power of lower bound, only used when lower_bound_mode = "soft" or "scaled-soft"
+bind_upper_mode = "soft"               # bounding mode for maximums, can be one of: "none", "soft", "scaled-soft", "hard", "clamp"
+bind_upper_lim = 1.0                   # bounding maximum, ignored when upper_bound_mode = "none"
+bind_upper_pow = 1.0                   # power of upper bound, only used when upper_bound_mode = "soft" or "scaled-soft"
+
+[connections.feedforward.delay]        # delays for dense connection for inference
+delay_max = 10.0                       # maximum allowed delay, same as d_init_max when not given
+init_dist = "uniform"                  # distribution of initial delays, can be one of: "uniform", "normal"
+init_min = 0.0                         # minimum value of initial delays
+init_max = 10.0                        # maximum value of initial delays
+norm_schedule = "never"                # how often delays are normalized, can be one of: "step", "batch", "never"
+norm_vector = "input"                  # if the vector for each input or output should be normalized, can be one of: "input", "output"
+norm_order = 1.0                       # order of the target p-norm
+norm_scale = 2352.0                    # target norm for each vector of delays
+norm_autoscale = false                 # if norm scale given is the per-element average
+bind_lower_mode = "clamp"              # bounding mode for minimums, can be one of: "none", "soft", "scaled-soft", "hard", "clamp"
+bind_lower_lim = 0.0                   # bounding minimum, ignored when lower_bound_mode = "none"
+bind_lower_pow = 1.0                   # power of lower bound, only used when lower_bound_mode = "soft" or "scaled-soft"
+bind_upper_mode = "clamp"              # bounding mode for maximums, can be one of: "none", "soft", "scaled-soft", "hard", "clamp"
+bind_upper_lim = 10.0                  # bounding maximum, ignored when upper_bound_mode = "none"
+bind_upper_pow = 1.0                   # power of upper bound, only used when upper_bound_mode = "soft" or "scaled-soft"
+
+[connections.lateral]                  # lateral and direct connections for lateral inhibition
+exc2inh_weight = 22.5                  # weights from the excitatory neurons to the inhibitory neurons
+inh2exc_weight = -120.0                # weights from the inhibitory neurons to the excitatory neurons
+
+[neurons.exc]                          # excitatory neurons (ALIF)
+rest_v = -65.0                         # membrane rest potential (in mV)
+reset_v = -60.0                        # membrane reset potential (in mV)
+thresh_eq_v = -52.0                    # equilibrium of membrane threshold potential (in mV)
+refrac_t = 5.0                         # absolute refractory period (in ms)
+tc_membrane = 100.0                    # time constant of exponential decay for membrane voltage (in ms)
+tc_adaptation = 1e7                    # time constant of exponential decay for adaptive thresholds (in ms), can be a list
+spike_adapt_incr = 0.05                # threshold increase on spiking (in mV), can be a list
+resistance = 1.0                       # membrane resistance (in MOhm)
+
+[neurons.inh]                          # inhibitory neurons (LIF)
+rest_v = -60.0                         # membrane rest potential (in mV)
+reset_v = -45.0                        # membrane reset potential (in mV)
+thresh_v = -40.0                       # equilibrium of membrane threshold potential (in mV)
+refrac_t = 2.0                         # absolute refractory period (in ms)
+tc_membrane = 75.0                     # time constant of exponential decay for membrane voltage (in ms)
+resistance = 1.0                       # membrane resistance (in MOhm)
+
+[training.common]                      # training options which apply to delays and weights
+tc_post = 20.0                         # time constant of exponential decay for postsynaptic traces (in ms), triggered on pre
+tc_pre = 20.0                          # time constant of exponential decay for presynaptic traces (in ms), triggered on post
+batch_reduction = "mean"               # batch axis reduction, can be one of: "mean", "sum", "max", "median", ["quantile", q], ["quantile", q, interp], "geomean"
+
+[training.weight]
+lr_post = 5e-4                         # postsynaptic LR for weights with STDP
+lr_pre = -5e-6                         # presynaptic LR for weights with STDP
+
+[training.delay]
+lr_post = -1.2e-2                      # postsynaptic LR for delays with STDP
+lr_pre = 1.2e-4                        # presynaptic LR for delays with STDP
+
+[bounding.weight]                      # bounding of feedforward connection weights
+lower_bound_mode = "soft"              # bounding mode for minimums, can be one of: "none", "soft", "scaled-soft", "hard", "clamp"
+lower_bound_lim = 0.0                  # weight bounding minimum, ignored when lower_bound_mode = "none"
+lower_bound_pow = 1.0                  # power of lower bound, only used when lower_bound_mode = "soft" or "scaled-soft"
+upper_bound_mode = "soft"              # bounding mode for maximums, can be one of: "none", "soft", "scaled-soft", "hard", "clamp"
+upper_bound_lim = 1.0                  # weight bounding maximum, ignored when upper_bound_mode = "none"
+upper_bound_pow = 1.0                  # power of upper bound, only used when upper_bound_mode = "soft" or "scaled-soft"
+
+[bounding.delay]                       # bounding of feedforward connection delays
+lower_bound_mode = "clamp"             # bounding mode for minimums, can be one of: "none", "soft", "scaled-soft", "hard", "clamp"
+lower_bound_lim = 0.0                  # delay bounding minimum, ignored when lower_bound_mode = "none"
+lower_bound_pow = 1.0                  # power of lower bound, only used when lower_bound_mode = "soft" or "scaled-soft"
+upper_bound_mode = "clamp"             # bounding mode for maximums, can be one of: "none", "soft", "scaled-soft", "hard", "clamp"
+upper_bound_lim = 10.0                 # delay bounding maximum, ignored when upper_bound_mode = "none"
+upper_bound_pow = 1.0                  # power of upper bound, only used when upper_bound_mode = "soft" or "scaled-soft"
