@@ -1,6 +1,6 @@
 # Delay Learning Experiments on Diehl & Cook using Inferno
 ## How to Run
-The project can be run by directly executing the included `ddc` module. This includes three subprojects named `dc`, `drdc`, and `dsdc` with slightly different configuration specifications. All train the same underlying Diehl & Cook model, but trained using STDP, [DR-STDP](https://direct.mit.edu/neco/article-abstract/36/7/1332/121125/Bioplausible-Unsupervised-Delay-Learning-for), and [DS-STDP](https://www.proquest.com/dissertations-theses/investigations-into-simulation-training-spiking/docview/3167831788/se-2) respectively. Not directly tied to the filename, each configuration includes a field `meta.name` which can be used to restore a run.
+The project can be run by directly executing the included `ddc` module. This includes three subprojects named `dc`, `drdc`, and `dsdc` with slightly different configuration specifications. All train the same underlying Diehl & Cook model, but trained using STDP, [DR-STDP](https://direct.mit.edu/neco/article-abstract/36/7/1332/121125/Bioplausible-Unsupervised-Delay-Learning-for), and [DS-STDP](https://arxiv.org/abs/2506.14984) respectively. Not directly tied to the filename, each configuration includes a field `meta.name` which can be used to restore a run.
 
 ### Examples
 #### STDP, Create a New Run
@@ -24,7 +24,7 @@ The source code is split into three main folders.
 Configurations are specified via TOML files. Three are included at the top level and replicate the baseline 100 neuron results from the dissertation.
 - `dc-baseline-n100.toml`: Training with STDP.
 - `drdc-baseline-n100.toml`: Training with [Delay-Related STDP (DR-STDP)](https://direct.mit.edu/neco/article-abstract/36/7/1332/121125/Bioplausible-Unsupervised-Delay-Learning-for).
-- `dsdc-baseline-n100.toml`: Training with [Delay-Shifted STDP (DS-STDP)](https://www.proquest.com/dissertations-theses/investigations-into-simulation-training-spiking/docview/3167831788/se-2).
+- `dsdc-baseline-n100.toml`: Training with [Delay-Shifted STDP (DS-STDP)](https://arxiv.org/abs/2506.14984).
 
 Additionally, the directories `configs/dc`, `configs/drdc`, and `configs/dsdc` contain the configurations used in the paper for generating results using STDP, DR-STDP, and DS-STDP, respectively. The only change made to these configurations files from the data generating runs was setting the device to `"cuda"` (rather than targeting a specific CUDA device).
 
